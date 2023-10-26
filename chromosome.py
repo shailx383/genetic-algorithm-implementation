@@ -3,6 +3,24 @@ import torch.nn.functional as F
 import torch.optim as optim
 from tqdm import tqdm
 import torch
+import random
+
+SEARCH_SPACE = {
+    'k_size_a': [1, 3, 5, 7],
+    'k_size_b': [1, 3, 5, 7],
+    'out_channels_a': [8, 16, 32, 64],
+    'out_channels_b': [8, 16, 32, 64],
+    'include_pool_a': [True, False],
+    'include_pool_b': [True, False],
+    'pool_type_a': ['max_pooling','avg_pooling'],
+    'pool_type_b': ['max_pooling','avg_pooling'],
+    'activation_type_a': ['relu', 'tanh', 'elu', 'selu'],
+    'activation_type_b': ['relu', 'tanh', 'elu', 'selu'], 
+    'include_b': [True, False],
+    'include_BN_a': [True, False],
+    'include_BN_b': [True, False],
+    'skip_connection': [True, False],
+}
 
 class Chromosome:
     def __init__(self,phase:int,prev_best,genes:dict):
@@ -108,11 +126,23 @@ class Chromosome:
         x = x.flatten()
         x = nn.Linear(x.shape[0],10,device=self.device)(x)
         return F.log_softmax(x,dim = 0)
-    
+
     def crossover(self, chromosome):
-        genes_self = self.genes
-        genes_other = chromosome.genes
-        keys = list(genes_self.keys())
-        
+        genes1 = self.genes
+        genes2 = chromosome.genes
+        keys = genes1.keys()
+        new_genes = {}
+        for key in keys:
+            new_genes[key] = random.choice([genes1[key], genes2[key]])
+        new_chromosome = Chromosome(self.phase, self.prev_best, new_genes)
+        return new_chromosome 
+    
+    def mutation(self):
+        mutated_gene = random.choice(list(self.genes.keys()))
+        possible_values = [value for value in SEARCH_SPACE[mutated_gene]]
+        possible_values.remove(self.genes[mutated_gene])
+        new_gene_value = random.choice(possible_values)
+        self.genes[mutated_gene] = new_gene_value
+
 
         
