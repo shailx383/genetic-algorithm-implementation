@@ -4,10 +4,10 @@ import torch.optim as optim
 from tqdm import tqdm
 import torch
 class Chromosome:
-    def __init__(self,phase:int,prev_best,genes:dict,device:str):
+    def __init__(self,phase:int,prev_best,genes:dict):
         self.phase = phase
         self.prev_best = prev_best
-        self.device = device
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.genes = genes
         self.out_dimensions = prev_best.out_dimensions if phase!=0 else 32
         self.model:nn.Module = self.build_model()
