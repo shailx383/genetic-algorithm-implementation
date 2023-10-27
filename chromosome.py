@@ -5,8 +5,8 @@ from tqdm import tqdm
 import torch
 import random
 SEARCH_SPACE = {
-    'k_size_a': [1, 3, 5, 7],
-    'k_size_b': [1, 3, 5, 7],
+    'k_size_a': [1, 3, 5],
+    'k_size_b': [1, 3, 5],
     'out_channels_a': [8, 16, 32, 64],
     'out_channels_b': [8, 16, 32, 64],
     'include_pool_a': [True, False],
@@ -44,7 +44,10 @@ class FinalModel(nn.Module):
 
     def forward(self, x, chromosome):
         if chromosome.genes['skip_connection']:
-            y = self.skip(x)
+            y = x
+            if chromosome.phase != 0:
+                y = chromosome.prev_best.model(x)
+            y = self.skip(y)
         x=self.block(x)
         if chromosome.genes['skip_connection']:
             x = x + y
@@ -57,10 +60,12 @@ class Chromosome:
     def __init__(self,phase:int,prev_best,genes:dict,train_loader,test_loader):
         self.phase = phase
         self.prev_best = prev_best
-        self.device = 'cuda'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.genes = genes
         self.out_dimensions = prev_best.out_dimensions if phase!=0 else 32
         self.model:nn.Module = self.build_model()
+        self.train_loader = train_loader
+        self.test_loader = test_loader
         self.fitness = self.fitness_function(train_loader,test_loader)
 
     def build_model(self)->nn.Module:
@@ -120,6 +125,7 @@ class Chromosome:
             new_model = nn.Sequential(*new_model_modules)
         if(self.genes['skip_connection']):
             self.out_dimensions = 32 if self.phase==0 else self.prev_best.out_dimensions
+        print(new_model)
         return new_model            
 
     def fitness_function(self,train_loader,test_loader)->float:
@@ -136,7 +142,7 @@ class Chromosome:
             for batch_idx, (data, target) in enumerate(pbar):
                 data, target = data.to(self.device), target.to(self.device)
                 optimizer.zero_grad()
-                output = new_model(data,self)
+                output = new_model(x = data, chromosome = self)
                 loss = criterion(output, target)
                 loss.backward()
                 optimizer.step()
@@ -153,6 +159,7 @@ class Chromosome:
                     total += labels.size(0)
                     correct += (predicted == labels).sum().item()
             print("Validation accuracy: {}".format(100 * correct / total))
+        print(f"Fitness calculated: {100 * correct / total}")
         return 100 * correct / total
 
     def crossover(self, chromosome):
@@ -162,7 +169,7 @@ class Chromosome:
         new_genes = {}
         for key in keys:
             new_genes[key] = random.choice([genes1[key], genes2[key]])
-        new_chromosome = Chromosome(self.phase, self.prev_best, new_genes)
+        new_chromosome = Chromosome(self.phase, self.prev_best, new_genes, self.train_loader, self.test_loader)
         return new_chromosome 
     
     def mutation(self):
@@ -172,6 +179,5 @@ class Chromosome:
         new_gene_value = random.choice(possible_values)
         new_genes = self.genes.copy()
         new_genes[mutated_gene] = new_gene_value
-        new_chromosome = Chromosome(self.phase, self.prev_best, new_genes)
+        new_chromosome = Chromosome(self.phase, self.prev_best, new_genes, self.train_loader, self.test_loader)
         return new_chromosome
-
