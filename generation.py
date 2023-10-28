@@ -43,7 +43,7 @@ class Generation():
         self.pop = sorted_pop
 
     def generate(self):
-        print("start gen")
+        # print("start gen")
         self.sort_pop()
         # print(f"{[i.fitness for i in self.pop]}")
         num_fit_selected = int(self.fit_survival_rate * self.pop_size)
@@ -70,7 +70,7 @@ class Generation():
         for i in indices_to_mutate:
             new_pop[i] = new_pop[i].mutation()
 
-        print("after fit/unfit/mutate", [i.fitness for i in new_pop])
+        # print("Mutuation done.", [i.fitness for i in new_pop])
 
         parents_list = []
         for i in range(self.pop_size - len(new_pop)):
@@ -83,6 +83,8 @@ class Generation():
         self.pop = new_pop
         self.pop_size = len(new_pop)
         self.sort_pop()
+
+        print("\n\n")
         # print(f"{[i.fitness for i in self.pop]}")
 
     def find_fittest(self):

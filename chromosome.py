@@ -125,7 +125,7 @@ class Chromosome:
             new_model = nn.Sequential(*new_model_modules)
         if(self.genes['skip_connection']):
             self.out_dimensions = 32 if self.phase==0 else self.prev_best.out_dimensions
-        print(new_model)
+        # print(new_model)
         return new_model            
 
     def fitness_function(self,train_loader,test_loader)->float:
@@ -135,7 +135,7 @@ class Chromosome:
         optimizer = optim.Adam(new_model.parameters(), lr=0.001)
         criterion = F.nll_loss
         new_model.to(self.device)
-        num_epochs = 5
+        num_epochs = 1
         for epoch in range(num_epochs):
             pbar = tqdm(train_loader)
             new_model.train()
