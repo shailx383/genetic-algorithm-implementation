@@ -58,8 +58,10 @@ class Generation():
 
         # print('ok')
 
+
         for i in range(num_unfit_selected):
-            if(new_pop[self.pop_size-i-1].fitness!=0):
+            print(i)
+            if(self.pop[self.pop_size-i-1].fitness!=0):
                 new_pop.append(self.pop[self.pop_size - i - 1])
 
         if (num_mutate > len(new_pop)):

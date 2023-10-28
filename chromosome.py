@@ -150,7 +150,7 @@ class Chromosome:
         optimizer = optim.Adam(new_model.parameters(), lr=0.001)
         criterion = F.nll_loss
         new_model.to(self.device)
-        num_epochs = 1
+        num_epochs = 5
         for epoch in range(num_epochs):
             pbar = tqdm(train_loader)
             new_model.train()
