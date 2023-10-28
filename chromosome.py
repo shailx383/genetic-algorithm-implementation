@@ -63,10 +63,12 @@ class Chromosome:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.genes = genes
         self.out_dimensions = prev_best.out_dimensions if phase!=0 else 32
+        self.fitness = -1 
         self.model:nn.Module = self.build_model()
         self.train_loader = train_loader
         self.test_loader = test_loader
-        self.fitness = self.fitness_function(train_loader,test_loader)
+        if self.fitness==-1:
+            self.fitness = self.fitness_function(train_loader,test_loader)
 
     def build_model(self)->nn.Module:
         if(self.prev_best!=None):
@@ -75,6 +77,10 @@ class Chromosome:
         padding_size = 0
         if(self.genes['skip_connection']):
             padding_size = 16 if self.phase==0 else self.prev_best.out_dimensions//2
+        if(self.out_dimensions<self.genes['k_size_a']):
+            self.fitness = 0
+            return nn.Sequential()
+        
         if(self.phase!=0):
             layer_a = nn.Conv2d(self.prev_best.genes['out_channels_b'] if self.prev_best.genes['include_b'] else self.prev_best.genes['out_channels_a'],self.genes['out_channels_a'],self.genes['k_size_a'],padding = self.genes['k_size_a']//2 if self.genes['skip_connection'] else 0)
         else:
@@ -86,6 +92,9 @@ class Chromosome:
         else:
             new_model_modules.append(nn.Tanh())
         if(self.genes['include_pool_a'] and not self.genes['skip_connection']):
+            if(self.out_dimensions<2):
+                self.fitness = 0
+                return nn.Sequential()
             if(self.genes['pool_type_a']=='max_pooling'):
                 new_model_modules.append(nn.MaxPool2d(2,2,padding = padding_size))
                 self.out_dimensions = self.out_dimensions//2
@@ -99,6 +108,9 @@ class Chromosome:
             new_model_modules.append(nn.BatchNorm2d(self.genes['out_channels_a']))
         
         if(self.genes['include_b'] or self.phase==0):
+            if(self.out_dimensions<self.genes['k_size_b']):
+                self.fitness = 0
+                return nn.Sequential()
             layer_b = nn.Conv2d(self.genes['out_channels_a'],self.genes['out_channels_b'],self.genes['k_size_b'],padding = self.genes['k_size_b']//2 if self.genes['skip_connection'] else 0)
             self.out_dimensions = (self.out_dimensions-self.genes['k_size_b']+1)
             new_model_modules.append(layer_b)
@@ -108,6 +120,9 @@ class Chromosome:
                 new_model_modules.append(nn.Tanh())
             
             if(self.genes['include_pool_b'] and not self.genes['skip_connection']):
+                if(self.out_dimensions<2):
+                    self.fitness = 0
+                    return nn.Sequential()
                 if(self.genes['pool_type_b']=='max_pooling'):
                     new_model_modules.append(nn.MaxPool2d(2,2,padding = padding_size))
                     self.out_dimensions = self.out_dimensions//2

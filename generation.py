@@ -53,12 +53,14 @@ class Generation():
         new_pop = []
 
         for i in range(num_fit_selected):
-            new_pop.append(self.pop[i])
+            if(self.pop[i].fitness!=0):
+                new_pop.append(self.pop[i])
 
         # print('ok')
 
         for i in range(num_unfit_selected):
-            new_pop.append(self.pop[self.pop_size - i - 1])
+            if(new_pop[self.pop_size-i-1].fitness!=0):
+                new_pop.append(self.pop[self.pop_size - i - 1])
 
         if (num_mutate > len(new_pop)):
             indices_to_mutate = random.sample(
@@ -68,7 +70,8 @@ class Generation():
                 range(0, len(new_pop)), num_mutate)
         
         for i in indices_to_mutate:
-            new_pop[i] = new_pop[i].mutation()
+            if(new_pop[i].fitness!=0):
+                new_pop[i] = new_pop[i].mutation()
 
         # print("Mutuation done.", [i.fitness for i in new_pop])
 
@@ -78,7 +81,8 @@ class Generation():
             parents_list.append(tuple(parents))
 
         for p1, p2 in parents_list:
-            new_pop.append(new_pop[p1].crossover(new_pop[p2]))
+            if(new_pop[p1].fitness!=0 and new_pop[p2].fitness!=0):
+                new_pop.append(new_pop[p1].crossover(new_pop[p2]))
 
         self.pop = new_pop
         self.pop_size = len(new_pop)
