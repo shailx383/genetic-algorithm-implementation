@@ -60,7 +60,7 @@ class Generation():
 
 
         for i in range(num_unfit_selected):
-            print(i)
+            # print(i)
             if(self.pop[self.pop_size-i-1].fitness!=0):
                 new_pop.append(self.pop[self.pop_size - i - 1])
 
@@ -89,7 +89,7 @@ class Generation():
         self.pop = new_pop
         self.pop_size = len(new_pop)
         self.sort_pop()
-
+        # print(self.pop_size)
         print("\n\n")
         # print(f"{[i.fitness for i in self.pop]}")
 

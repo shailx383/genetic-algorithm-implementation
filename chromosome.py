@@ -82,13 +82,19 @@ class Chromosome:
             return nn.Sequential()
         
         if(self.phase!=0):
-            layer_a = nn.Conv2d(self.prev_best.genes['out_channels_b'] if self.prev_best.genes['include_b'] else self.prev_best.genes['out_channels_a'],self.genes['out_channels_a'],self.genes['k_size_a'],padding = self.genes['k_size_a']//2 if self.genes['skip_connection'] else 0)
+            # layer_a = nn.Conv2d(self.prev_best.genes['out_channels_b'] if self.prev_best.genes['include_b'] else self.prev_best.genes['out_channels_a'],self.genes['out_channels_a'],self.genes['k_size_a'],padding = self.genes['k_size_a']//2 if self.genes['skip_connection'] else 0)
+            layer_a = nn.Conv2d(self.prev_best.genes['out_channels_b'] if self.prev_best.genes['include_b'] else self.prev_best.genes['out_channels_a'],self.genes['out_channels_a'],self.genes['k_size_a'],padding = 'same')
         else:
-            layer_a = nn.Conv2d(3,self.genes['out_channels_a'],self.genes['k_size_a'],padding = self.genes['k_size_a']//2 if self.genes['skip_connection'] else 0)
-        self.out_dimensions = (self.out_dimensions-self.genes['k_size_a']+1)
+            # layer_a = nn.Conv2d(3,self.genes['out_channels_a'],self.genes['k_size_a'],padding = self.genes['k_size_a']//2 if self.genes['skip_connection'] else 0)
+            layer_a = nn.Conv2d(3,self.genes['out_channels_a'],self.genes['k_size_a'],padding = 'same')
+        # self.out_dimensions = (self.out_dimensions-self.genes['k_size_a']+1)
         new_model_modules.append(layer_a)
         if(self.genes['activation_type_a']=='relu'):
             new_model_modules.append(nn.ReLU())
+        elif(self.genes['activation_type_a']=='elu'):
+            new_model_modules.append(nn.ELU())
+        elif(self.genes['activation_type_a']=='selu'):
+            new_model_modules.append(nn.SELU())
         else:
             new_model_modules.append(nn.Tanh())
         if(self.genes['include_pool_a'] and not self.genes['skip_connection']):
@@ -97,9 +103,11 @@ class Chromosome:
                 return nn.Sequential()
             if(self.genes['pool_type_a']=='max_pooling'):
                 new_model_modules.append(nn.MaxPool2d(2,2,padding = padding_size))
+                # new_model_modules.append(nn.MaxPool2d(2,2,padding = 'same'))
                 self.out_dimensions = self.out_dimensions//2
             elif(self.genes['pool_type_a']=='avg_pooling'):
                 new_model_modules.append(nn.AvgPool2d(2,2,padding = padding_size))
+                # new_model_modules.append(nn.AvgPool2d(2,2,padding = 'same'))
                 self.out_dimensions = self.out_dimensions//2
             else:
                 raise Exception('Invalid pool type (a layer)')
@@ -111,11 +119,16 @@ class Chromosome:
             if(self.out_dimensions<self.genes['k_size_b']):
                 self.fitness = 0
                 return nn.Sequential()
-            layer_b = nn.Conv2d(self.genes['out_channels_a'],self.genes['out_channels_b'],self.genes['k_size_b'],padding = self.genes['k_size_b']//2 if self.genes['skip_connection'] else 0)
-            self.out_dimensions = (self.out_dimensions-self.genes['k_size_b']+1)
+            # layer_b = nn.Conv2d(self.genes['out_channels_a'],self.genes['out_channels_b'],self.genes['k_size_b'],padding = self.genes['k_size_b']//2 if self.genes['skip_connection'] else 0)
+            layer_b = nn.Conv2d(self.genes['out_channels_a'],self.genes['out_channels_b'],self.genes['k_size_b'],padding = 'same')
+            # self.out_dimensions = (self.out_dimensions-self.genes['k_size_b']+1)
             new_model_modules.append(layer_b)
             if(self.genes['activation_type_b']=='relu'):
                 new_model_modules.append(nn.ReLU())
+            elif(self.genes['activation_type_b']=='elu'):
+                new_model_modules.append(nn.ELU())
+            elif(self.genes['activation_type_b']=='selu'):
+                new_model_modules.append(nn.SELU())
             else:
                 new_model_modules.append(nn.Tanh())
             
@@ -125,9 +138,11 @@ class Chromosome:
                     return nn.Sequential()
                 if(self.genes['pool_type_b']=='max_pooling'):
                     new_model_modules.append(nn.MaxPool2d(2,2,padding = padding_size))
+                    # new_model_modules.append(nn.MaxPool2d(2,2,padding = 'same'))
                     self.out_dimensions = self.out_dimensions//2
                 elif(self.genes['pool_type_b']=='avg_pooling'):
                     new_model_modules.append(nn.AvgPool2d(2,2,padding = padding_size))
+                    # new_model_modules.append(nn.AvgPool2d(2,2,padding = 'same'))
                     self.out_dimensions = self.out_dimensions//2
                 else:
                     raise Exception('Invalid pool type (b layer)')
@@ -162,6 +177,20 @@ class Chromosome:
                 loss.backward()
                 optimizer.step()
                 pbar.set_description(desc= f'epoch {epoch} loss={loss.item()} batch_id={batch_idx}')
+            # Training accuracy
+            '''
+            correct = 0
+            total = 0
+            new_model.eval()
+            with torch.no_grad():
+                for data in train_loader:
+                    images, labels = data[0].to(self.device), data[1].to(self.device)
+                    outputs = new_model(images,self)
+                    _, predicted = torch.max(outputs.data, 1)
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
+            print("Training accuracy: {}".format(100 * correct / total))
+            '''
             #Testing loop
             correct = 0
             total = 0
