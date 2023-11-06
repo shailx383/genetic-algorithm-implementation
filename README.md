@@ -2,6 +2,7 @@
 Hyperparameter Optimization for CNNs using genetic algorithms
 ## Problem Description
 The project aims to explore the applications of various Deep Neural Network Architectures in practical problems and to optimize the process of selecting the proper hyperparameters (Dropout, Hidden Layers, etc.) for these tasks. We propose to carry out this optimization using Evolutionary Algorithms, such as Genetic Algorithms, to eliminate the chances of human error arising from the trial-and-error-based process. Evolutionary algorithms have also been shown to be computationally efficient, and hence, our project aims to see how effectively certain Deep Learning application-based problems can be solved using hyperparameters selected via such techniques.
+We also compare our models with existing evolutionary architectures and certain modified implementations of the same.
 ## Research Literature
 - [Xiao, Xueli & Yan, Ming & Basodi, Sunitha & Ji, Chunyan & Pan, Yi. (2020). Efficient Hyperparameter Optimization in Deep Learning Using a Variable Length Genetic Algorithm.](https://arxiv.org/abs/2006.12703)
 - [Nurshazlyn Mohd Aszemi and P.D.D Dominic, “Hyperparameter Optimization in Convolutional Neural Network using Genetic Algorithms” International Journal of Advanced Computer Science and Applications(IJACSA), 10(6), 2019. ](http://dx.doi.org/10.14569/IJACSA.2019.0100638)
