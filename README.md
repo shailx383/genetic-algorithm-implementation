@@ -11,3 +11,7 @@ The project aims to explore the applications of various Deep Neural Network Arch
 - [ Esteban Real, Sherry Moore, Andrew Selle, Saurabh Saxena, Yutaka Leon Suematsu, Jie Tan, Quoc Le, and Alex
 Kurakin. Large-Scale Evolution of Image Classifiers. In Proceedings of the 34th International Conference on
 Machine Learning - Volume 70, pages 2902–2911, Sydney, NSW, Australia, 2017.](https://arxiv.org/pdf/1703.01041.pdf)
+- [James Bergstra and Yoshua Bengio. Random Search for Hyper-Parameter Optimization. J. Mach. Learn. Res.,
+13:281–305, 2012.
+](https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf)
+  
