@@ -14,4 +14,8 @@ Machine Learning - Volume 70, pages 2902–2911, Sydney, NSW, Australia, 2017.](
 - [James Bergstra and Yoshua Bengio. Random Search for Hyper-Parameter Optimization. J. Mach. Learn. Res.,
 13:281–305, 2012.
 ](https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf)
-  
+- [Steven R. Young, Derek C. Rose, Thomas P. Karnowski, Seung-Hwan Lim, and Robert M. Patton. Optimizing
+deep learning hyper-parameters through an evolutionary algorithm. In Proceedings of the Workshop on Machine
+Learning in High-Performance Computing Environments - MLHPC ’15, pages 1–5, Austin, Texas, USA, 2015.
+ACM Press.
+](https://dl.acm.org/doi/10.1145/2834892.2834896)
