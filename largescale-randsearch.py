@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 import torch
-from generation import Generation
+# from generation import Generation
 
 SEARCH_SPACE = {
     'k_size_a': [1, 3, 5],
@@ -32,7 +32,7 @@ SEARCH_SPACE = {
     'include_BN_b': [True, False],
     'include_BN_c': [True, False],
     'include_BN_d': [True, False],
-    'skip_connection': [True, False],
+    'skip_connection': [False],
 }
 
 FIT_SURVIVAL_RATE = 0.5
@@ -191,7 +191,7 @@ class Chromosome:
                 self.fitness = 0
                 return nn.Sequential()
             # layer_b = nn.Conv2d(self.genes['out_channels_a'],self.genes['out_channels_b'],self.genes['k_size_b'],padding = self.genes['k_size_b']//2 if self.genes['skip_connection'] else 0)
-            layer_c = nn.Conv2d(self.genes['out_channels_b'],self.genes['out_channels_b'],self.genes['k_size_c'],padding = 'same')
+            layer_c = nn.Conv2d(self.genes['out_channels_b'],self.genes['out_channels_c'],self.genes['k_size_c'],padding = 'same')
             # self.out_dimensions = (self.out_dimensions-self.genes['k_size_b']+1)
             new_model_modules.append(layer_c)
             if(self.genes['activation_type_c']=='relu'):
@@ -271,7 +271,7 @@ class Chromosome:
         optimizer = optim.Adam(new_model.parameters(), lr=0.001)
         criterion = F.nll_loss
         new_model.to(self.device)
-        num_epochs = 5
+        num_epochs = 1
         for epoch in range(num_epochs):
             pbar = tqdm(train_loader)
             new_model.train()
@@ -361,20 +361,24 @@ class Generation():
         keys = search_space.keys()
         for key in keys:
             gene[key] = random.choice(search_space[key])
-        num_layers = random.randrange(1,5)
+        num_layers = random.randrange(1,4)
         if num_layers == 4:
+            gene['include_a'] = True
             gene['include_b'] = True
             gene['include_c'] = True
             gene['include_d'] = True
         elif num_layers == 3:
+            gene['include_a'] = True
             gene['include_b'] = True
             gene['include_c'] = True
             gene['include_d'] = False
         elif num_layers == 2:
+            gene['include_a'] = True
             gene['include_b'] = True
             gene['include_c'] = False
             gene['include_d'] = False
         else:
+            gene['include_a'] = True
             gene['include_b'] = False
             gene['include_c'] = False
             gene['include_d'] = False
@@ -470,7 +474,7 @@ for i in range (rounds):
        generation.pop.append(generation.pop[index1].mutation())
 
 generation.sort_pop()
-generation.find_fittest.fitness()
+print("fittest is; ", generation.find_fittest().fitness)
 
    
 
