@@ -386,5 +386,11 @@ for i in range (rounds):
        #Reproduce the first one
        generation.pop.append(generation.pop[index1].mutation())
 
+   else:
+        #Kill the index1
+        generation.pop.pop(index1)
+        #Reproduce the second one
+        generation.pop.append(generation.pop[index2].mutation())
+
 generation.sort_pop()
 generation.find_fittest.fitness()
