@@ -468,10 +468,17 @@ for i in range (rounds):
          flag = False
     
    if(generation.pop[index1].fitness > generation.pop[index2].fitness):
+
+       generation.pop.append(generation.pop[index1].mutation())
        #Kill the index2
        generation.pop.pop(index2)
        #Reproduce the first one
-       generation.pop.append(generation.pop[index1].mutation())
+
+   else:
+        generation.pop.append(generation.pop[index2].mutation())
+        #Kill the index1
+        generation.pop.pop(index1)
+        #Reproduce the second one
 
 generation.sort_pop()
 print("fittest is; ", generation.find_fittest().fitness)
