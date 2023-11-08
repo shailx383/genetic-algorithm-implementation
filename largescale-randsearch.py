@@ -464,7 +464,7 @@ for i in range (rounds):
    flag = True
    while(flag):
      index2 = random.randrange(0, generation.pop_size)
-     if(index2 != index1):
+     if(index2 > index1):
          flag = False
     
    if(generation.pop[index1].fitness > generation.pop[index2].fitness):
